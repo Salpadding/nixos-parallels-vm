@@ -1,14 +1,9 @@
 { config, lib, pkgs, ... }:
 
-let
-  home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/master.tar.gz";
-in
 {
-  imports =
-    [
-      ./hardware-configuration.nix
-      (import "${home-manager}/nixos")
-    ];
+  imports = [
+    ./hardware-configuration.nix
+  ];
 
   # Boot loader
   boot.loader.systemd-boot.enable = true;
@@ -45,20 +40,20 @@ in
   home-manager.users.admin = { pkgs, ... }: {
     home.stateVersion = "25.11";
 
-    # Link nvim config from /etc/nixos/dotfiles/nvim
+    # Link nvim config from dotfiles/nvim
     xdg.configFile."nvim" = {
-      source = /etc/nixos/dotfiles/nvim;
+      source = ./dotfiles/nvim;
       recursive = true;
     };
 
-    # Link tmux config from /etc/nixos/dotfiles/tmux
+    # Link tmux config from dotfiles/tmux
     xdg.configFile."tmux" = {
-      source = /etc/nixos/dotfiles/tmux;
+      source = ./dotfiles/tmux;
       recursive = true;
     };
 
-    # Link vimrc from /etc/nixos/dotfiles/vim
-    home.file.".vimrc".source = /etc/nixos/dotfiles/vim/vimrc;
+    # Link vimrc from dotfiles/vim
+    home.file.".vimrc".source = ./dotfiles/vim/vimrc;
 
     programs.bash = {
       enable = true;
@@ -94,6 +89,7 @@ in
     bash
     ruby
     nodejs
+    claude-code
   ];
 
   # Enable SSH
