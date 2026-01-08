@@ -93,6 +93,7 @@ in
     neovim
     bash
     ruby
+    nodejs
   ];
 
   # Enable SSH
@@ -109,6 +110,22 @@ in
 
   # Passwordless sudo for wheel group
   security.sudo.wheelNeedsPassword = false;
+
+  # Create /opt and /opt/npm directories with 777 permissions
+  systemd.tmpfiles.rules = [
+    "d /opt 0777 root root -"
+    "d /opt/npm 0777 root root -"
+  ];
+
+  # Configure npm global directory
+  environment.variables = {
+    NPM_CONFIG_PREFIX = "/opt/npm";
+  };
+
+  # Add /opt/npm/bin to PATH
+  environment.shellInit = ''
+    export PATH="/opt/npm/bin:$PATH"
+  '';
 
   # Enable Nix Flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
