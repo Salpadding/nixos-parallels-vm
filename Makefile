@@ -14,3 +14,4 @@ else
 	rsync -av --delete --exclude='.git' --exclude='CLAUDE.md' --exclude='CLAUDE.MD' --exclude='Makefile' --rsync-path='sudo rsync' -e "$(SSH_PROXY)" ./ $(VM_HOST):/etc/nixos/
 	$(SSH_PROXY) $(VM_HOST) 'sudo nixos-rebuild switch --flake "/etc/nixos#nixos-vm"'
 endif
+

@@ -92,6 +92,7 @@
     gnumake
     claude-code
     lazygit
+    xclip
     # Terminal compatibility (terminfo for modern terminals)
     kitty.terminfo
     ghostty.terminfo
