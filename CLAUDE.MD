@@ -6,5 +6,5 @@ This repository is about configurations on nixos virtual machine.
 
 
 ```sh
-ssh admin@192.168.16.152
+ssh -o ProxyCommand='nc -X 5 -x 192.168.16.1:7903 %h %p' admin@192.168.16.152
 ```

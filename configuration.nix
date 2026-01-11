@@ -89,7 +89,12 @@
     bash
     ruby
     nodejs
+    gnumake
     claude-code
+    lazygit
+    # Terminal compatibility (terminfo for modern terminals)
+    kitty.terminfo
+    ghostty.terminfo
   ];
 
   # Enable SSH
@@ -128,6 +133,17 @@
 
   # Allow unfree packages (needed for Parallels tools)
   nixpkgs.config.allowUnfree = true;
+
+  # Parallels Tools configuration
+  hardware.parallels.enable = true;
+
+  # Xfce Desktop Environment (X11 - better Parallels Tools compatibility)
+  services.xserver = {
+    enable = true;
+    videoDrivers = [ "modesetting" ];
+    desktopManager.xfce.enable = true;
+    displayManager.lightdm.enable = true;
+  };
 
   system.stateVersion = "25.11";
 }
