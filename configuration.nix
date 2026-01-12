@@ -1,8 +1,18 @@
 { config, lib, pkgs, ... }:
 
+let
+  settings = builtins.fromJSON (builtins.readFile ./nixos-settings.json);
+  gui = settings.gui or "hyprland";
+  isHyprland = gui == "hyprland";
+  isPlasmaWayland = gui == "plasma-wayland";
+in
 {
   imports = [
     ./hardware-configuration.nix
+  ] ++ lib.optionals isHyprland [
+    ./hyprland.nix
+  ] ++ lib.optionals isPlasmaWayland [
+    ./plasma-wayland.nix
   ];
 
   # Boot loader
@@ -30,7 +40,7 @@
   # User account
   users.users.admin = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [ "wheel" "networkmanager" "video" ];
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICqWGcDJIN/HoT8pa3KeqSJ4gN88MulphjOi68ZTXCFh C5390852@H7DWCK9Y5C"
     ];
@@ -74,7 +84,7 @@
     home.enableNixpkgsReleaseCheck = false;
   };
 
-  # Essential packages
+  # Essential packages (common to all desktop environments)
   environment.systemPackages = with pkgs; [
     vim
     git
@@ -92,10 +102,22 @@
     gnumake
     claude-code
     lazygit
-    xclip
+    telegram-desktop
     # Terminal compatibility (terminfo for modern terminals)
     kitty.terminfo
     ghostty.terminfo
+  ] ++ lib.optionals isHyprland [
+    # Hyprland / Wayland essentials
+    kitty              # Terminal emulator
+    waybar             # Status bar
+    wofi               # Application launcher
+    mako               # Notification daemon
+    wl-clipboard       # Clipboard utilities (wl-copy, wl-paste)
+    grim               # Screenshot utility
+    slurp              # Region selection for screenshots
+    swww               # Wallpaper daemon
+    brightnessctl      # Brightness control
+    networkmanagerapplet  # Network manager tray applet
   ];
 
   # Enable SSH
@@ -138,13 +160,31 @@
   # Parallels Tools configuration
   hardware.parallels.enable = true;
 
-  # Xfce Desktop Environment (X11 - better Parallels Tools compatibility)
-  services.xserver = {
+  # Hyprland (Wayland compositor) - only when gui = hyprland
+  programs.hyprland = lib.mkIf isHyprland {
     enable = true;
-    videoDrivers = [ "modesetting" ];
-    desktopManager.xfce.enable = true;
-    displayManager.lightdm.enable = true;
+    xwayland.enable = true;
   };
+
+  # Display manager for Wayland (greetd with tuigreet) - only when gui = hyprland
+  services.greetd = lib.mkIf isHyprland {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --remember --cmd Hyprland";
+        user = "greeter";
+      };
+    };
+  };
+
+  # XDG portal for Hyprland (screen sharing, file dialogs, etc.) - only when gui = hyprland
+  xdg.portal = lib.mkIf isHyprland {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
+  };
+
+  # Enable OpenGL
+  hardware.graphics.enable = true;
 
   system.stateVersion = "25.11";
 }
