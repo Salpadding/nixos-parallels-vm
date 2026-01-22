@@ -7,13 +7,13 @@
     xkb.layout = "us";
   };
 
-  # Enable SDDM display manager (X11 only)
+  # Enable SDDM display manager with Wayland
   services.displayManager = {
     sddm = {
       enable = true;
-      wayland.enable = false;
+      wayland.enable = true;
     };
-    defaultSession = "plasmax11";
+    defaultSession = "plasma";
   };
 
   # Enable KDE Plasma Desktop
@@ -28,7 +28,7 @@
         fcitx5-rime
         qt6Packages.fcitx5-configtool
       ];
-      waylandFrontend = false;  # Using X11
+      waylandFrontend = true;  # Using Wayland
     };
   };
 
@@ -86,6 +86,60 @@
 
   # Home-manager configuration for Plasma
   home-manager.users.admin = { pkgs, ... }: {
-    # Plasma-specific home-manager settings can go here
+    # Configure KWin to use Fcitx 5 as virtual keyboard (Wayland input method)
+    xdg.configFile."kwinrc" = {
+      text = ''
+        [Wayland]
+        InputMethod[$e]=/run/current-system/sw/share/applications/fcitx5-wayland-launcher.desktop
+      '';
+      force = true;
+    };
+
+    # Fcitx5 input method configuration - add Rime
+    xdg.configFile."fcitx5/profile" = {
+      text = ''
+        [Groups/0]
+        Name=Default
+        Default Layout=us
+        DefaultIM=rime
+
+        [Groups/0/Items/0]
+        Name=keyboard-us
+        Layout=
+
+        [Groups/0/Items/1]
+        Name=rime
+        Layout=
+
+        [GroupOrder]
+        0=Default
+      '';
+      force = true;
+    };
+
+    # Rime configuration - use Simplified Chinese
+    xdg.dataFile."fcitx5/rime/default.custom.yaml" = {
+      text = ''
+        patch:
+          schema_list:
+            - schema: luna_pinyin_simp
+          menu/page_size: 9
+      '';
+    };
+
+    # Luna Pinyin Simp schema settings
+    xdg.dataFile."fcitx5/rime/luna_pinyin_simp.custom.yaml" = {
+      text = ''
+        patch:
+          switches:
+            - name: ascii_mode
+              reset: 0
+              states: [ 中文, 西文 ]
+            - name: full_shape
+              states: [ 半角, 全角 ]
+            - name: ascii_punct
+              states: [ 。，, ．， ]
+      '';
+    };
   };
 }

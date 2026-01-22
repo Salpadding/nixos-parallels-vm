@@ -8,7 +8,7 @@ IS_IN_VM := $(shell ip addr 2>/dev/null | grep -q "$(VM_IP)" && echo 1)
 
 rebuild:
 ifeq ($(IS_IN_VM),1)
-	sudo rsync -av --delete --exclude='.git' --exclude='CLAUDE.md' --exclude='CLAUDE.MD' --exclude='Makefile' ./ /etc/nixos/
+	sudo rsync -av --delete --exclude='.git' --exclude='CLAUDE.md' --exclude='CLAUDE.MD' --exclude='Makefile' --exclude='flake.lock' ./ /etc/nixos/
 	sudo nixos-rebuild switch --flake "/etc/nixos#nixos-vm"
 else
 	rsync -av --delete --exclude='.git' --exclude='CLAUDE.md' --exclude='CLAUDE.MD' --exclude='Makefile' --rsync-path='sudo rsync' -e "$(SSH_PROXY)" ./ $(VM_HOST):/etc/nixos/

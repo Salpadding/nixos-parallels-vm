@@ -2,9 +2,16 @@
 
 This repository is about configurations on nixos virtual machine.
 
-## ssh access
 
+## rebuild system
 
 ```sh
-ssh -o ProxyCommand='nc -X 5 -x 192.168.16.1:7903 %h %p' admin@192.168.16.152
+make rebuild
+```
+
+## upgrade via flake
+
+```sh
+cd /etc/nixos
+sudo nix flake update
 ```
